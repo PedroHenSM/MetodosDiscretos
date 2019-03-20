@@ -30,15 +30,14 @@ if __name__ == '__main__':
     y_dots = ["x", "o", "*", "+"]
     y_colors = ["blue", "red", "yellow", "green"]
     # print(deltas)
-    for i in range(len(deltas)):
-        y = [[2]] * 4
+    for i in range(len(deltas) - 3):
+        y = [[2] for j in range(4)]
         n = int((2.0 - 0.0)/deltas[i]) + 1
         x = np.linspace(0., 2., n)
         explicitEuler(x, y[0], n, deltas[i])
         implicitEuler(x, y[1], n, deltas[i])
         trapezium(x, y[2], n, deltas[i])
         unkown(x, y[3], n, deltas[i])
-        #print("{}\n{}\n{}\n{}".format(y_ee, y_ie, y_trap, y_unk))
         for j in range(len(y_names)):
             plt.plot(x, y[j], y_dots[j], label=y_labels[j], color=y_colors[j])
             plt.legend(loc="best")
