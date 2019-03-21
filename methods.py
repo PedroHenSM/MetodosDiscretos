@@ -18,17 +18,17 @@ def trapezium(x, y, n, h):
         # verify if a = 20 or a = -20 (if a = 20 change equation signal)
 
 
-def unkown(x, y, n, h):
+def mult_step(x, y, n, h):
     implicitEuler(x, y, 2, h)
     for i in range(n-2):
         y.append(-40 * h * y[i+1] + y[i])
 
 if __name__ == '__main__':
     deltas = [1/9, 1/10, 1/11, 1/20]
-    y_names = ["y_ee", "y_ie", "y_trap", "y_unk"]
+    y_names = ["y_ee", "y_ie", "y_trap", "y_mult"]
     y_labels = ["ee", "ie", "trap", "unk"]
-    y_dots = ["x", "o", "*", "+"]
-    y_colors = ["blue", "red", "yellow", "green"]
+    y_dots = ["x", "o", "h", "+"]
+    y_colors = ["blue", "red", "darkorange", "green"]
     # print(deltas)
     for i in range(len(deltas)):
         y = [[2] for j in range(4)]
@@ -37,8 +37,11 @@ if __name__ == '__main__':
         explicitEuler(x, y[0], n, deltas[i])
         implicitEuler(x, y[1], n, deltas[i])
         trapezium(x, y[2], n, deltas[i])
-        unkown(x, y[3], n, deltas[i])
+        mult_step(x, y[3], n, deltas[i])
+
         for j in range(len(y_names)):
-            plt.plot(x, y[j], y_dots[j], label=y_labels[j], color=y_colors[j])
-            plt.legend(loc="best")
-            plt.show()
+                plt.plot(x, y[j], y_dots[j], label=y_labels[j], color=y_colors[j])
+                plt.legend(loc="best")
+                plt.title(y_names[j]+ " delta="+str(deltas[i]))
+                plt.autoscale(enable=True, axis='both', tight=None)
+                plt.show()
