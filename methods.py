@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def analitic(x, y):
+    for i in range(len(x)):
+        y.append(2*np.exp(-20*x[i]))
 
 def explicitEuler(x, y, n, h):
     for i in range(n-1):
@@ -30,6 +33,12 @@ if __name__ == '__main__':
     y_dots = ["x", "o", "h", "+"]
     y_colors = ["blue", "red", "darkorange", "green"]
     # print(deltas)
+
+    x_analitic = np.linspace(0, 2, 100)
+    y_analitic = []
+    analitic(x_analitic, y_analitic)
+	
+	
     for i in range(len(deltas)):
         y = [[2] for j in range(4)]
         n = int((2.0 - 0.0)/deltas[i]) + 1
@@ -40,8 +49,9 @@ if __name__ == '__main__':
         mult_step(x, y[3], n, deltas[i])
 
         for j in range(len(y_names)):
-                plt.plot(x, y[j], y_dots[j], label=y_labels[j], color=y_colors[j])
-                plt.legend(loc="best")
-                plt.title(y_names[j]+ " delta="+str(deltas[i]))
-                plt.autoscale(enable=True, axis='both', tight=None)
-                plt.show()
+            plt.plot(x_analitic, y_analitic, color='black')
+            plt.plot(x, y[j], y_dots[j], label=y_labels[j], color=y_colors[j])
+            plt.legend(loc="best")
+            plt.title(y_names[j]+ " delta="+str(deltas[i]))
+            plt.autoscale(enable=True, axis='both', tight=None)
+            plt.show()
