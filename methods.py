@@ -30,7 +30,7 @@ def modifiedEuler(x, y, n, h):
     for i in range(n-1):
         yAux = (y[i] + (-y[i] + x[i] + 1/2) * h)  # ũ Explicito
         # y.append(y[i] / (-yAux + x[i+1] + 1/2) * h) # Implicito
-        y.append(y[i] + (h/2.0) * ((-y[i] + x[i] + 1/2) - yAux + x[i] + 1/2)) #
+        y.append(y[i] + (h/2.0) * ((-y[i] + x[i] + 1/2) - yAux + x[i+1] + 1/2)) #
 
 def analitico(x, y):  # u' = -u + t + 1/2
     for t in np.arange(0, 1.001, 0.01):
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     x = np.linspace(0., 1., n)
     modifiedEuler(x, y, n, h)
     plt.plot(x_analitic, y_analitic, color="black")
-    plt.plot(x, y, label="Modified Euler", color="red")
+    plt.plot(x, y, "x", label="Modified Euler", color="red")
     plt.legend(["Solução Analítica", "Euler Modificado"])
-    plt.title("")
+    plt.title("Euler Modificado (Método de Heun) h = 0.1")
     plt.show()
