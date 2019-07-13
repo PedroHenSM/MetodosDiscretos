@@ -6,20 +6,20 @@
 
 // Function to install new file system
 int installMyFS (){
-        //fs->fsid=
-        //fs->fsname=
         FSInfo * fs = malloc (sizeof(FSInfo));
-        fs->closedirFn = closedirFn;
+        fs->fsid = "idfs";
+        fs->fsname = "lukinhadlc";
+        fs->isidleFn = isidleFn;
+        fs->formatFn = formatFn;
+        fs->openFn = openFn;
+        fs->readFn = readFn;
+        fs->writeFn = writeFn;
         fs->closeFn = closeFn;
-        fs->formatFn=formatFn;
-        fs->isidleFn=isidleFn;
-        fs->linkFn=linkFn;
-        fs->opendirFn=opendirFn;
-        fs->openFn=openFn;
-        fs->readdirFn=readdirFn;
-        fs->readFn=readFn;
-        fs->unlinkFn=unlinkFn;
-        fs->writeFn=writeFn;
+        fs->opendirFn = opendirFn;
+        fs->readdirFn = readdirFn;
+        fs->linkFn = linkFn;
+        fs->unlinkFn = unlinkFn;
+        fs->closedirFn = closedirFn;
         vfsRegisterFS(fs);
 }
 
