@@ -7,7 +7,7 @@
 // Function to install new file system
 int installMyFS (){
         FSInfo * fs = malloc (sizeof(FSInfo));
-        fs->fsid = "idfs";
+        fs->fsid = "l";
         fs->fsname = "lukinhadlc";
         fs->isidleFn = isidleFn;
         fs->formatFn = formatFn;
@@ -35,7 +35,37 @@ int isidleFn (Disk *d){
 //blocos disponiveis no disco, se formatado com sucesso. Caso contrario,
 //retorna -1.
 int formatFn (Disk *d, unsigned int blockSize){
+        int retorno = 0;
+        int deuCerto = 1;
+        if(f && d){  // se ambos são diferentes de nulo
+            unsigned long espacoTotal = diskGetSize (d); // função do disk.h
+            //int diskGetId (Disk* d);
+            unsigned long totalSetores= diskGetNumSectors (d); // função do disk.h
+            for(int i=0; i< totalSetores; i++){
+                if(diskWriteSector (d,i,0)==0){   // escrevo 0 em cada setor. pois é formatação de alto
+                    continue;                  // nivel
+                }
+                else{
+                    deuCerto =0;    // se nao der certo eu paro e mudo a flag
+                    break;
+                }
+            }
+            if(deuCerto ==1){    // se deu certo a formatação
+                retorno = espacoTotal/blockSize;  // eu calculo a quantidade de blocos disponíveis
+            }
+            else{
+                retorno = -1;
+            }
+            return retorno;
+        }
         return -1;
+
+// eu não sei se isso está certo, o sistema do moreno só permite um disco e na
+//linha 213 da main ele faz uma verificação que só faz sentido se tiver mais de um disco
+// porque quando você monta o filesystem ele seta o disco que a gente conectou como
+//sendo o disco com o rootfylesistem
+// e na linha 213 da main ele verifica se é o mesmo disco e não deixa formatar
+// ai já não sei.
 }
 
 //Funcao para abertura de um arquivo, a partir do caminho especificado
@@ -43,7 +73,10 @@ int formatFn (Disk *d, unsigned int blockSize){
 //criando o arquivo se nao existir. Retorna um descritor de arquivo,
 //em caso de sucesso. Retorna -1, caso contrario.
 int openFn (Disk *d, const char *path){
-        return -1;
+        if (d){
+            FILE* file = d.fp;
+            file = fopen(path)
+        }
 }
 
 //Funcao para a leitura de um arquivo, a partir de um descritor de
