@@ -2,15 +2,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "disk.h"
+#include "vfs.h"
+
+FSInfo*f;
+
+FileInfo* arquivos[MAX_FDS]; // array para armazenar os arquivos que estão em uso
 
 
-// Function to install new file system
+// Função para instalar o sistema de arquivos
 int installMyFS (){
-        FSInfo * fs = malloc (sizeof(FSInfo));
-        fs->fsid = "l";
-        fs->fsname = "lukinhadlc";
-        fs->isidleFn = isidleFn;
-        fs->formatFn = formatFn;
+        FSInfo * fs = malloc (sizeof(FSInfo)); // aloco memória para a o sistema de aqruivo hipotético
+        fs->fsid = 1; // id do sistema de arquivos hipotético
+        fs->fsname = "lukinhadlc";     
+        fs->isidleFn = isidleFn;  // fazendo a assimilação dos nomes das funções com o 
+        fs->formatFn = formatFn; // respectivos ponteiros
         fs->openFn = openFn;
         fs->readFn = readFn;
         fs->writeFn = writeFn;
@@ -20,14 +26,25 @@ int installMyFS (){
         fs->linkFn = linkFn;
         fs->unlinkFn = unlinkFn;
         fs->closedirFn = closedirFn;
-        vfsRegisterFS(fs);
+        vfsRegisterFS(fs); // fazendo registro do sistema de arquivo junto ao algoritmo
+        f=fs;
 }
 
 //Funcao para verificacao se o sistema de arquivos está ocioso, ou seja,
 //se nao ha quisquer descritores de arquivos em uso atualmente. Retorna
 //um positivo se ocioso ou, caso contrario, 0.
-int isidleFn (Disk *d){
-        return 0;
+int isidleFn (Disk *disco){
+    int i;
+
+    for(i=0; i < MAX_FDS; i++)
+    {
+        FileInfo* file = arquivos[i];
+        if(diskGetId(d) == diskGetId(file->disk) && file != NULL) // Se existe arquivo em uso 
+            return false;                                        // retorno falso
+    }
+ 
+    return true; // caso contrário retorno true
+
 }
 
 //Funcao para formatacao de um disco com o novo sistema de arquivos
@@ -35,48 +52,51 @@ int isidleFn (Disk *d){
 //blocos disponiveis no disco, se formatado com sucesso. Caso contrario,
 //retorna -1.
 int formatFn (Disk *d, unsigned int blockSize){
-        int retorno = 0;
-        int deuCerto = 1;
-        if(f && d){  // se ambos são diferentes de nulo
-            unsigned long espacoTotal = diskGetSize (d); // função do disk.h
-            //int diskGetId (Disk* d);
-            unsigned long totalSetores= diskGetNumSectors (d); // função do disk.h
-            for(int i=0; i< totalSetores; i++){
-                if(diskWriteSector (d,i,0)==0){   // escrevo 0 em cada setor. pois é formatação de alto
-                    continue;                  // nivel
-                }
-                else{
-                    deuCerto =0;    // se nao der certo eu paro e mudo a flag
-                    break;
-                }
-            }
-            if(deuCerto ==1){    // se deu certo a formatação
-                retorno = espacoTotal/blockSize;  // eu calculo a quantidade de blocos disponíveis
-            }
-            else{
-                retorno = -1;
-            }
-            return retorno;
-        }
-        return -1;
+  int retorno = 0; 
+   int deuCerto = 1;     
+  if(f && d){ // se ambos são diferentes de nulo
+    unsigned long espacoTotal = diskGetSize (d); // função do disk.h
+    //int diskGetId (Disk* d);
+    unsigned long totalSetores= diskGetNumSectors (d); // função do disk.h
+    for(int i=0; i< totalSetores;i++){
+      if(diskWriteSector (d,i,0)==0){  // escrevo 0 em cada setor. pois é formatação de alto 
+           continue;                  // nivel 
+      }
+       else{
+           deuCerto =0;    // se nao der certo eu paro e mudo a flag
+           break;    
+       }   
 
+    }
+    if(deuCerto ==1){   // se deu certo a formatação
+       retorno = espacoTotal/blockSize;  // eu calculo a quantidade de blocos disponíveis
+      }
+      else{
+              retorno = -1;
+      }
+     return retorno;
+   }
+  }    
 // eu não sei se isso está certo, o sistema do moreno só permite um disco e na
 //linha 213 da main ele faz uma verificação que só faz sentido se tiver mais de um disco
-// porque quando você monta o filesystem ele seta o disco que a gente conectou como
+// porque quando você monta o filesystem ele seta o disco que a gente conectou como 
 //sendo o disco com o rootfylesistem
 // e na linha 213 da main ele verifica se é o mesmo disco e não deixa formatar
 // ai já não sei.
-}
+    
+
+//Funcao que escreve em *cyl o numero do cilindro correspondente a um endereco
+//(addr) LBA de setor de um disco. Retorna 0 se o endereco for valido e -1
+//caso contrario
+int diskAddrToCylinder (Disk* d, unsigned long addr, unsigned long *cyl);    
+
 
 //Funcao para abertura de um arquivo, a partir do caminho especificado
 //em path, no disco montado especificado em d, no modo Read/Write,
 //criando o arquivo se nao existir. Retorna um descritor de arquivo,
 //em caso de sucesso. Retorna -1, caso contrario.
 int openFn (Disk *d, const char *path){
-        if (d){
-            FILE* file = d.fp;
-            file = fopen(path)
-        }
+        return -1;
 }
 
 //Funcao para a leitura de um arquivo, a partir de um descritor de
@@ -98,7 +118,15 @@ int writeFn (int fd, const char *buf, unsigned int nbytes){
 //Funcao para fechar um arquivo, a partir de um descritor de arquivo
 //existente. Retorna 0 caso bem sucedido, ou -1 caso contrario
 int closeFn (int fd){
-        return -1;
+     FileInfo* f = arquivos[fd]; // recupero informações do sistema de arquivos
+
+    if(file == NULL) return -1; // se ele está null retorno -1
+  
+     free(file->inode); //faço a desalocação do Inode
+
+    free(file); // Faço a desalocação da RAM
+    openFiles[fd] = NULL; // digo que esse descritor de arquivo não aponta para mais nada
+    return 0;
 }
 
 //Funcao para abertura de um diretorio, a partir do caminho
